@@ -18,6 +18,7 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     AppBundle\:
         resource: '../../src/AppBundle/*'
+        #resource: '../../src/AppBundle/Security/User/*'
         # you can exclude directories or files
         # but if a service is unused, it's removed anyway
         exclude: '../../src/AppBundle/{Entity,Repository,Tests}'

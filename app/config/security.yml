@@ -2,6 +2,7 @@
 # https://symfony.com/doc/current/security.html
 security:
 
+
     # https://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
     providers:
         webservice:
@@ -15,12 +16,22 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+
         main:
+            #pattern: ^/
+            #user_checker: AppBundle\Security\User\UserChecker
+            #
             anonymous: ~
             # activate different ways to authenticate
+
 
             # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
             #http_basic: ~
 
             # https://symfony.com/doc/current/security/form_login_setup.html
-            #form_login: ~
+            form_login:
+              login_path: /login
+              check_path: /login
+    access_control:
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: ROLE_ADMIN }

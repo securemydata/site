@@ -45,16 +45,14 @@ class WebserviceUserProvider implements UserProviderInterface
         $userData = array();
         // pretend it returns an array on success, false if there is no user
 
-        if ($userData) {
-            $password   = 'ok';
-            $username   = 'rgz';
-            $salt       = 123456786415212;
-            $roles      = ROLE_ADMIN;
+        $password   = 'ok';
+        $username   = 'rgz';
+        $salt       = 123456786415212;
+        $roles      = ['ROLE_ADMIN'];
 
-            // ...
+
 
             return new WebserviceUser($username, $password, $salt, $roles);
-        }
 
         throw new UsernameNotFoundException(
             sprintf('Username "%s" does not exist.', $username)
