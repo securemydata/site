@@ -4,8 +4,10 @@ security:
 
     # https://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
     providers:
-        in_memory:
-            memory: ~
+        webservice:
+            id: AppBundle\Security\User\WebserviceUserProvider
+    encoders:
+        AppBundle\Security\User\WebserviceUser: bcrypt
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
