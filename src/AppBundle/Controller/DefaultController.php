@@ -7,39 +7,24 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use AppBundle\Security\User\WebserviceUserProvider;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Security;
 
 class DefaultController extends Controller
 {
     /**
  * @Route("/", name="homepage")
  */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request, Security $security)
     {
         // replace this example code with whatever you need
-        echo $this->container->get('kernel')->getEnvironment();
+
+        var_export($this->get("security.token_storage")->getToken());
+        var_export($security->getUser());
         return $this->render('default/index.html.twig', [
             'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
         ]);
+        ;
+
     }
 
-    /**
-     * @Route("/login", name="login")
-     */
-    public function loginAction(Request $request)
-    {
-        // replace this example code with whatever you need
-
-        $repo =new WebserviceUserProvider();
-        $user = $repo->loadUserByUsername('tg');
-        if (!$user) {
-            throw new UsernameNotFoundException("User not found");
-        } else {
-            $token = new UsernamePasswordToken($user, null, "main", $user->getRoles());
-            $this->get("security.token_storage")->setToken($token);
-            /*$request = $this->get("request");
-            $event = new InteractiveLoginEvent($request, $token);
-            $this->get("event_dispatcher")->dispatch("security.interactive_login", $event);*/
-        }
-        return $this->redirectToRoute('homepage');
-    }
 }
