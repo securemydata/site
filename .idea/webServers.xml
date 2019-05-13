@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="b5caf81a-6f99-4b42-909e-e6c9260964ba" name="ovh" url="http://www.rgz.Fr">
+        <fileTransfer host="www.rgz.Fr" port="22" rootFolder="/var/www/rgz/rgz" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

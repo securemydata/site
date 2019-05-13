@@ -13,9 +13,19 @@ use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use AppBundle\Entity\User;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 
 class WebserviceUserProvider implements UserProviderInterface
 {
+    private $container;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     public function loadUserByUsername($username)
     {
         return $this->fetchUser($username);
@@ -42,12 +52,16 @@ class WebserviceUserProvider implements UserProviderInterface
     private function fetchUser($username)
     {
         // make a call to your webservice here
-        $userData = array();
+        $user = '';
         // pretend it returns an array on success, false if there is no user
+        $user = $this->container->get('doctrine')->getManager()
+            ->getRepository(User::class)
+            ->findOneByEmail($username);
 
-        $password   = 'ok';
-        $username   = 'rgz';
-        $salt       = 123456786415212;
+        echo $username."========================";
+        $password   = $user->getPassphrase();
+        //$username   = $user->getFirstName().' '.$user->getLastName();
+        $salt       = $user->getEmail();
         $roles      = ['ROLE_ADMIN'];
 
 

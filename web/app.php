@@ -1,5 +1,5 @@
 <?php
-
+ini_set('memory_limit', '1G');
 use Symfony\Component\HttpFoundation\Request;
 
 require __DIR__.'/../vendor/autoload.php';
