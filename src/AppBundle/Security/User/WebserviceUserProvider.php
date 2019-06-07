@@ -52,21 +52,20 @@ class WebserviceUserProvider implements UserProviderInterface
     private function fetchUser($username)
     {
         // make a call to your webservice here
-        $user = '';
         // pretend it returns an array on success, false if there is no user
         $user = $this->container->get('doctrine')->getManager()
             ->getRepository(User::class)
             ->findOneByEmail($username);
 
-        echo $username."========================";
-        $password   = $user->getPassphrase();
+        //echo $username."========================";
+        $password   = $user->getPassword();
         //$username   = $user->getFirstName().' '.$user->getLastName();
-        $salt       = $user->getEmail();
+        $salt       = $user->getPassphrase();
         $roles      = ['ROLE_ADMIN'];
 
 
 
-            return new WebserviceUser($username, $password, $salt, $roles);
+        return new WebserviceUser($username, $password, $salt, $roles);
 
         throw new UsernameNotFoundException(
             sprintf('Username "%s" does not exist.', $username)

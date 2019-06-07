@@ -20,8 +20,8 @@ class DefaultController extends Controller
     {
         // replace this example code with whatever you need
 
-        var_export($this->get("security.token_storage")->getToken());
-        var_export($security->getUser());
+       // var_export($this->get("security.token_storage")->getToken());
+        //var_export($security->getUser());
         return $this->render('default/index.html.twig', [
             'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
         ]);
@@ -39,15 +39,17 @@ class DefaultController extends Controller
         $users = $this->getDoctrine()
             ->getRepository(User::class)
             ->find(1);
-        var_export($users);
+        //var_export($users);
 
         $users = $this->getDoctrine()
             ->getRepository(User::class)
             ->findOneByEmail("test@free.fr");
-        var_export($users);
+        //var_export($users);
 
         return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
+            'secret'=> $this->container->getParameter('secret'),
+            'warning'=> 'Votre passephrase n\'est pas enregistrer. Veuillez le renseigne avant de continuer.',
+            'warningUrl'=> "moncompte",
         ]);
         ;
 

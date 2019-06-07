@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * User
@@ -14,35 +15,42 @@ class User
 {
     /**
      * @var string
-     *
+     * @Assert\Email
      * @ORM\Column(name="email", type="string", length=255, nullable=true)
      */
     private $email;
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank
      * @ORM\Column(name="first_name", type="string", length=255, nullable=true)
      */
     private $firstName;
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank
      * @ORM\Column(name="last_name", type="string", length=255, nullable=true)
      */
     private $lastName;
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank
+     * @ORM\Column(name="password", type="string", length=255, nullable=true)
+     */
+    private $password;
+
+    /**
+     * @var string
+     * @Assert\NotBlank
      * @ORM\Column(name="passphrase", type="string", length=255, nullable=true)
      */
     private $passphrase;
 
     /**
      * @var \DateTime
-     *
+     * @Assert\NotBlank
      * @ORM\Column(name="date_passphrase", type="datetime", nullable=true)
      */
     private $datePassphrase;
@@ -64,6 +72,11 @@ class User
     private $id;
 
 
+    public function __construct()
+    {
+        $this->setDateBdd(new \DateTime());
+        $this->setDatePassphrase(new \DateTime());
+    }
 
     /**
      * Set email
@@ -135,6 +148,30 @@ class User
     public function getLastName()
     {
         return $this->lastName;
+    }
+
+    /**
+     * Set password
+     *
+     * @param string $password
+     *
+     * @return User
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Get password
+     *
+     * @return string
+     */
+    public function getPassword()
+    {
+        return $this->password;
     }
 
     /**
