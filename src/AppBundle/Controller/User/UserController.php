@@ -29,13 +29,13 @@ class UserController extends Controller
         $user = $this->container->get('doctrine')->getManager()
             ->getRepository(User::class)
             ->findOneByEmail($mail);
-        var_export($user);
+        //var_export($user);
 
         return $this->render('user/user.html.twig', [
             'email' => $user->getemail(),
             'firstName' => $user->getfirstName(),
             'lastName' => $user->getlastName(),
-            'passphrase' => $user->getpassphrase(),
+            //'passphrase' => $user->getpassphrase(),
         ]);
         ;
 
@@ -52,10 +52,16 @@ class UserController extends Controller
         //echo $request->request->get('firstName').$request->request->get('lastName').$request->request->get('passphrase');
         $user->setFirstName($request->request->get('firstName'));
         $user->setLastName($request->request->get('lastName'));
-        $user->setPassphrase($request->request->get('passphrase'));
+
         $salt               = $this->container->getParameter('secret');
+
+        if($request->request->get('passphrase')<>'') {
+            $encodedPassphrase = User::encryptPassword($request->request->get('passphrase'), $salt);
+            $user->setPassphrase($encodedPassphrase);
+        }
+
         if($request->request->get('password')<>'') {
-            $encodedPassword = md5($request->request->get('password') . $salt);
+            $encodedPassword = User::encryptPassword($request->request->get('password'),$request->request->get('password').$salt);
             $user->setPassword($encodedPassword);
         }
         $date = new \DateTime();
@@ -65,7 +71,7 @@ class UserController extends Controller
 
         $entityManager->persist($user);
         $entityManager->flush();
-        var_export($user);
+        //var_export($user);
 
         return $this->render('user/user.html.twig', [
             'email' => $user->getemail(),

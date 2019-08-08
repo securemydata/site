@@ -255,4 +255,20 @@ class User
     {
         return $this->id;
     }
+
+
+    public static function encryptPassword($password, $salt  ){
+
+        $c  = openssl_encrypt ( $password , "AES-128-CBC" , $salt,0,'123fdqs123456789');
+        //echo $c." [".strlen($c)."]";
+        //echo openssl_decrypt( $c , "AES-128-CBC" , 'test',0,'123fdqs123456789');
+        return $c;
+    }
+
+
+    public static function decryptPassword($password, $salt  ){
+
+        $c  = openssl_decrypt( $password , "AES-128-CBC" , $salt,0,'123fdqs123456789');
+        return $c;
+    }
 }

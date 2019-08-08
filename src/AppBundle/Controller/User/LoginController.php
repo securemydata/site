@@ -32,16 +32,15 @@ class LoginController extends Controller
      */
     public function loginAction(Request $request, Security $security)
     {
-
+        $salt               = $this->container->getParameter('secret');
         $msgerror  = null;
         $user = new User();
-        $c  = openssl_encrypt ( "key devrait être généré précédement d'une manière cryptographique, tel que openssl_random_pseudo_bytes" , "AES-128-CBC" , 'test',0,'123fdqs123456789');
-        echo $c." [".strlen($c)."]";
-        //echo openssl_decrypt( $c , "AES-128-CBC" , 'test',0,'123fdqs123456789');
+
         $form = $this->createFormBuilder()
             ->setAction($this->generateUrl('login'))
             ->add('email', EmailType::class)
             ->add('password', PasswordType::class)
+            ->add('passphrase', PasswordType::class)
             ->add('connect', SubmitType::class, ['label' => 'Connect'])
             ->getForm();
 
@@ -56,10 +55,11 @@ class LoginController extends Controller
                 ->getRepository(User::class)
                 ->findOneByEmail($dataform['email']);
             //var_export($isuser);
-            $salt               = $this->container->getParameter('secret');
-            $encodedPassword    = md5($dataform['password'].$salt);
+            $encodedPassword    = User::encryptPassword($dataform['password'],$dataform['password'].$salt);
+            $encodedPassphrase  = User::encryptPassword($dataform['passphrase'],$salt);
+            //$encodedPassword    = md5($dataform['password'].$salt);
             //echo "|".$isuser->getPassword()."|\r\n|".$encodedPassword.'| '.is_object($isuser).' '.($encodedPassword==$isuser->getPassword());
-            if(is_object($isuser) && $encodedPassword==$isuser->getPassword()){
+            if(is_object($isuser) && $encodedPassword==$isuser->getPassword()  && $encodedPassphrase==$isuser->getPassphrase()){
 
                 //echo "yeahhhhhhhhhhhhhhhhhhhhhh !!! ";
 
@@ -158,12 +158,22 @@ class LoginController extends Controller
                     ]);
                 }else{
                     $salt               = $this->container->getParameter('secret');
-                    $encodedPassword = md5($dataform->getPassword() . $salt);
+
+                    $encodedPassphrase = User::encryptPassword($dataform->getPassphrase(),$salt);
+                    $user->setPassphrase($encodedPassphrase);
+
+                    $encodedPassword = User::encryptPassword($dataform->getPassword(),$dataform->getPassword().$salt);
                     $user->setPassword($encodedPassword);
+
+                    /*$encodedPassphrase = md5($dataform->getPassphrase() . $salt);
+                    $user->setPassphrase($encodedPassphrase);
+                    $encodedPassword = md5($dataform->getPassword() . $salt);
+                    $user->setPassword($encodedPassword);*/
                     $entityManager->persist($user);
                     $entityManager->flush();
                     echo $salt.' '.$dataform->getPassword();
-                    //return $this->redirectToRoute('homepage');
+
+                    return $this->redirectToRoute('homepage');
                 }
 
             }
