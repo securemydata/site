@@ -11,57 +11,9 @@
     {% if secret is defined %}
         {{ secret }}
     {% endif %}
-    <script>
 
-        function loadmodaldata(a){
-            $('#my_modal_body').text('hello '+a);
-            $.ajax({
 
-                // Adresse à laquelle la requête est envoyée
-                url: '/testajax?a=' + a,
 
-                // Le délai maximun en millisecondes de traitement de la demande
-                timeout: 4000,
-
-                // La fonction à apeller si la requête aboutie
-                success: function (data) {
-                    // Je charge les données dans box
-                    $('#my_modal_body').html(data);
-                },
-
-                // La fonction à appeler si la requête n'a pas abouti
-                error: function() {
-                    // J'affiche un message d'erreur
-                    alert('oops');
-                }
-
-            });
-        }
-    </script>
-
-    <div class="modal modal-info fade in" id="modal-info" >
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span></button>
-                    <h4 class="modal-title">Info Modal</h4>
-                </div>
-                <div class="modal-body" id="my_modal_body">
-                    <br>
-                    <p>One fine body…</p>
-                    <br>
-                </div>
-
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div>
-
-    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info" onclick="loadmodaldata(1)">
-        Launch Info Modal
-    </button>
 {% endblock %}
 
 

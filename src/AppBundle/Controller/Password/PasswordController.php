@@ -41,7 +41,7 @@ class PasswordController extends Controller
         $pass = $this->getDoctrine()
             ->getRepository(Password::class)
             ->findAlllist($user->getId());
-        var_export($pass);
+        //var_export($pass);
 
 
         return $this->render('password/passwordlist.html.twig');
@@ -161,7 +161,7 @@ class PasswordController extends Controller
             ->add('save', SubmitType::class, ['label' => 'Submit'])
             ->getForm();
 
-        var_export($pass);
+        //var_export($pass);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -200,16 +200,21 @@ class PasswordController extends Controller
         $pass   = new Password();
 
         $pass->setPassword(Password::randomPassword());
+        $pass->setDateInsert(new \DateTime());
 
         $form = $this->createFormBuilder($pass)
             ->setAction('/passwordedit')
             ->add('label', TextType::class)
             ->add('password', TextType::class)
             ->add('description', TextareaType::class)
+            ->add('date_insert', DateType::class, [
+                'widget' => 'single_text',
+                'label'  => 'Date',
+            ])
             ->add('save', SubmitType::class, ['label' => 'Submit'])
             ->getForm();
 
-        var_export($pass);
+        //var_export($pass);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
