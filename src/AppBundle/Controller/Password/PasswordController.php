@@ -136,7 +136,7 @@ class PasswordController extends Controller
             $pass = $this->getDoctrine()
                 ->getRepository(Password::class)
                 ->findOneById($id);
-            var_export($pass);
+            //var_export($pass);
             if($pass->getIdUser()<>$user->getId()){
                 return $this->redirectToRoute('passwordslist');
             }
@@ -171,7 +171,7 @@ class PasswordController extends Controller
             $pass->setPassword(User::encryptPassword($pass->getPassword(),User::decryptPassword($user->getPassphrase(),$salt)));
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($pass);
-            var_export($pass);
+           // var_export($pass);
             $entityManager->flush();
             return $this->redirect('/passwordedit/'.$pass->getId());
 
@@ -181,6 +181,41 @@ class PasswordController extends Controller
             'id' => $pass->getId()
         ]);
         ;
+        //return $this->redirectToRoute('moncompte');
+
+    }
+
+    /**
+     * @Route("/deletepassword/{idpwd}", name="deletepassword")
+     */
+    public function DeletePassword(Request $request, Security $security, $idpwd)
+    {
+
+        $mail   = $security->getUser()->getUsername();
+        $user = $this->container->get('doctrine')->getManager()
+            ->getRepository(User::class)
+            ->findOneByEmail($mail);
+
+        //$id = $request->query->get('id');
+        $id = $idpwd;
+        if(!empty($id) && $id>0) {
+            $pass = $this->getDoctrine()
+                ->getRepository(Password::class)
+                ->findOneById($id);
+            var_export($pass);
+            if($pass->getIdUser()<>$user->getId()){
+                return $this->redirectToRoute('passwordslist');
+            }
+        }else{
+            $pass   = new Password();
+        }
+
+      $entityManager = $this->getDoctrine()->getManager();
+      $entityManager->remove($pass);
+      $entityManager->flush();
+      return $this->redirect('/passwordslist');
+
+
         //return $this->redirectToRoute('moncompte');
 
     }
