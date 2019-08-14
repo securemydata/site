@@ -56,7 +56,7 @@ class UserController extends Controller
         $salt               = $this->container->getParameter('secret');
 
         if($request->request->get('passphrase')<>'') {
-            $encodedPassphrase = User::encryptPassword($request->request->get('passphrase'), $salt);
+            $encodedPassphrase = User::encryptPassword($request->request->get('passphrase'), $request->request->get('passphrase').$salt);
             $user->setPassphrase($encodedPassphrase);
         }
 

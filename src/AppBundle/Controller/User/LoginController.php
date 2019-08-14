@@ -56,13 +56,15 @@ class LoginController extends Controller
                 ->findOneByEmail($dataform['email']);
             //var_export($isuser);
             $encodedPassword    = User::encryptPassword($dataform['password'],$dataform['password'].$salt);
-            $encodedPassphrase  = User::encryptPassword($dataform['passphrase'],$salt);
+            $encodedPassphrase  = User::encryptPassword($dataform['passphrase'],$dataform['passphrase'].$salt);
             //$encodedPassword    = md5($dataform['password'].$salt);
             //echo "|".$isuser->getPassword()."|\r\n|".$encodedPassword.'| '.is_object($isuser).' '.($encodedPassword==$isuser->getPassword());
             if(is_object($isuser) && $encodedPassword==$isuser->getPassword()  && $encodedPassphrase==$isuser->getPassphrase()){
 
                 //echo "yeahhhhhhhhhhhhhhhhhhhhhh !!! ";
-
+                $session = $request->getSession();
+                $session->set('User',$isuser);
+                $session->set('Passphrase',$dataform['passphrase']);
                 $u = new WebserviceUser( $dataform['email'],$encodedPassword , $isuser->getPassphrase(), ['ROLE_ADMIN']);
                 $sftoken = new UsernamePasswordToken($u, null, "main", $u->getRoles());
                 $this->get('security.token_storage')->setToken(NULL);
@@ -159,7 +161,7 @@ class LoginController extends Controller
                 }else{
                     $salt               = $this->container->getParameter('secret');
 
-                    $encodedPassphrase = User::encryptPassword($dataform->getPassphrase(),$salt);
+                    $encodedPassphrase = User::encryptPassword($dataform->getPassphrase(),$dataform->getPassphrase().$salt);
                     $user->setPassphrase($encodedPassphrase);
 
                     $encodedPassword = User::encryptPassword($dataform->getPassword(),$dataform->getPassword().$salt);

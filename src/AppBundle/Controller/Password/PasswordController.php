@@ -56,11 +56,12 @@ class PasswordController extends Controller
     public function Passworddata(Request $request, Security $security)
     {
         $mail   = $security->getUser()->getUsername();
-        $user = $this->container->get('doctrine')->getManager()
+        /*$user = $this->container->get('doctrine')->getManager()
             ->getRepository(User::class)
-            ->findOneByEmail($mail);
+            ->findOneByEmail($mail);*/
 
-
+        $session    = $request->getSession();
+        $user       = $session->get('User');
 
 
         $content = $request->query->all();
@@ -101,9 +102,9 @@ class PasswordController extends Controller
     public function TestAjax(Request $request, Security $security)
     {
         $mail   = $security->getUser()->getUsername();
-        $user = $this->container->get('doctrine')->getManager()
-            ->getRepository(User::class)
-            ->findOneByEmail($mail);
+        $session    = $request->getSession();
+        $user       = $session->get('User');
+        $passphrase = $session->get('Passphrase');
 
         $content = $request->query->get('a');
         $pass = $this->getDoctrine()
@@ -111,7 +112,7 @@ class PasswordController extends Controller
             ->findOneById($content);
         $salt               = $this->container->getParameter('secret');
 
-        $p  = (User::decryptPassword($pass->getPassword(),User::decryptPassword($user->getPassphrase(),$salt)));
+        $p  = (User::decryptPassword($pass->getPassword(),$passphrase));
 
         return new Response($p, 200, array('Content-Type' => 'text/html'));
 
@@ -126,10 +127,9 @@ class PasswordController extends Controller
     {
 
         $mail   = $security->getUser()->getUsername();
-        $user = $this->container->get('doctrine')->getManager()
-            ->getRepository(User::class)
-            ->findOneByEmail($mail);
-
+        $session    = $request->getSession();
+        $user       = $session->get('User');
+        $passphrase = $session->get('Passphrase');
         //$id = $request->query->get('id');
         $id = $idpwd;
         if(!empty($id) && $id>0) {
@@ -143,7 +143,7 @@ class PasswordController extends Controller
 
             $salt               = $this->container->getParameter('secret');
 
-            $pass->setPassword(User::decryptPassword($pass->getPassword(),User::decryptPassword($user->getPassphrase(),$salt)));
+            $pass->setPassword(User::decryptPassword($pass->getPassword(),$passphrase));
 
 
         }else{
@@ -168,7 +168,7 @@ class PasswordController extends Controller
 
             $salt               = $this->container->getParameter('secret');
 
-            $pass->setPassword(User::encryptPassword($pass->getPassword(),User::decryptPassword($user->getPassphrase(),$salt)));
+            $pass->setPassword(User::encryptPassword($pass->getPassword(),$passphrase));
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($pass);
            // var_export($pass);
@@ -192,9 +192,8 @@ class PasswordController extends Controller
     {
 
         $mail   = $security->getUser()->getUsername();
-        $user = $this->container->get('doctrine')->getManager()
-            ->getRepository(User::class)
-            ->findOneByEmail($mail);
+        $session    = $request->getSession();
+        $user       = $session->get('User');
 
         //$id = $request->query->get('id');
         $id = $idpwd;
@@ -202,7 +201,7 @@ class PasswordController extends Controller
             $pass = $this->getDoctrine()
                 ->getRepository(Password::class)
                 ->findOneById($id);
-            var_export($pass);
+            //var_export($pass);
             if($pass->getIdUser()<>$user->getId()){
                 return $this->redirectToRoute('passwordslist');
             }
@@ -227,10 +226,10 @@ class PasswordController extends Controller
     {
 
         $mail   = $security->getUser()->getUsername();
-        $user = $this->container->get('doctrine')->getManager()
-            ->getRepository(User::class)
-            ->findOneByEmail($mail);
-
+        $session    = $request->getSession();
+        $user       = $session->get('User');
+        $passphrase = $session->get('Passphrase');
+        //echo $passphrase;
 
         $pass   = new Password();
 
@@ -257,16 +256,16 @@ class PasswordController extends Controller
 
             $salt               = $this->container->getParameter('secret');
 
-            $pass->setPassword(User::encryptPassword($pass->getPassword(),User::decryptPassword($user->getPassphrase(),$salt)));
+            $pass->setPassword(User::encryptPassword($pass->getPassword(),$passphrase));
 
             $pass->setDateInsert(new \DateTime());
             $pass->setIdUser($user->getId());
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($pass);
-            var_export($pass);
+            //var_export($pass);
             $entityManager->flush();
-            return $this->redirect('/passwordedit/'.$pass->getId());
+            return $this->redirect('/passwordslist');
 
         }
         return $this->render('password/passwordedit.html.twig', [
