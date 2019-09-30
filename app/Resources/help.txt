@@ -4,6 +4,11 @@ php bin/console doctrine:mapping:convert annotation ./src
 php bin/console doctrine:generate:entities --format=annotation AppBundle:User
 
 
+php bin/console doctrine:mapping:import --force AppBundle xml --filter="log_password_list"
+php bin/console doctrine:mapping:convert --from-database  annotation ./src
+php bin/console doctrine:mapping:convert annotation ./src --filter="log_password_list"
+php bin/console doctrine:generate:entities AppBundle:log_password_list --path ./src
+
  php bin/console doctrine:cache:clear-metadata
  php bin/console doctrine:cache:clear-query
  php bin/console doctrine:cache:clear-result
