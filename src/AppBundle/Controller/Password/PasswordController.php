@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Security;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Password;
+//use AppBundle\Service\LogPassword;
 use AppBundle\Repository\PasswordRepository;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -25,6 +26,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 
 class PasswordController extends Controller
 {
@@ -34,6 +36,7 @@ class PasswordController extends Controller
      */
     public function Passwordslist(Request $request, Security $security)
     {
+        $q      = $request->query->get('q');
         $mail   = $security->getUser()->getUsername();
         $user = $this->container->get('doctrine')->getManager()
             ->getRepository(User::class)
@@ -44,7 +47,9 @@ class PasswordController extends Controller
         //var_export($pass);
 
 
-        return $this->render('password/passwordlist.html.twig');
+        return $this->render('password/passwordlist.html.twig',
+            ['q' => $q]
+        );
 
         //return $this->redirectToRoute('moncompte');
 
@@ -82,10 +87,10 @@ class PasswordController extends Controller
             ->findAlllist($user->getId(),$orderColumn,$orderDir,$start,$length,$search);
         $data   = array();
         foreach($pass as $thepass){
-            $data[] = ['label' => $thepass->getLabel(),'password' => $thepass->getId(),'description' => nl2br(substr($thepass->getDescription(),0,100).'[...]'),'id'=>$thepass->getId()];
+            $data[] = ['label' => $thepass->getLabel(),'login' => $thepass->getLogin(),'url' => $thepass->getUrl(),'password' => $thepass->getId(),'description' => nl2br($thepass->getDescription()),'DateInsert'=>date_format($thepass->getDateInsert(),'d/m/Y H:i'),'id'=>$thepass->getId()];
 
         }
-        $ar =   [  "draw"=> $draw, "recordsTotal"=> 57, "recordsFiltered"=> 57,
+        $ar =   [  "draw"=> $draw, "recordsTotal"=> count($pass), "recordsFiltered"=> count($pass),
                     "data"=>$data
                 ];
 
@@ -112,7 +117,9 @@ class PasswordController extends Controller
             ->findOneById($content);
         $salt               = $this->container->getParameter('secret');
 
+        $ip    = $request->getClientIp();
         $p  = (User::decryptPassword($pass->getPassword(),$passphrase));
+        $l = $this->get('app.logpassword')->log($user->getId(),$content, $ip);
 
         return new Response($p, 200, array('Content-Type' => 'text/html'));
 
@@ -130,8 +137,11 @@ class PasswordController extends Controller
         $session    = $request->getSession();
         $user       = $session->get('User');
         $passphrase = $session->get('Passphrase');
+        $success    = $request->query->get('success');
         //$id = $request->query->get('id');
         $id = $idpwd;
+        $ip    = $request->getClientIp();
+        $l = $this->get('app.logpassword')->log($user->getId(),$idpwd,$ip);
         if(!empty($id) && $id>0) {
             $pass = $this->getDoctrine()
                 ->getRepository(Password::class)
@@ -152,7 +162,9 @@ class PasswordController extends Controller
         $form = $this->createFormBuilder($pass)
             ->setAction('/passwordedit/'.$id)
             ->add('label', TextType::class)
+            ->add('login', TextType::class)
             ->add('password', TextType::class)
+            ->add('url', UrlType::class)
             ->add('description', TextareaType::class)
             ->add('date_insert', DateType::class, [
                 'widget' => 'single_text',
@@ -173,12 +185,13 @@ class PasswordController extends Controller
             $entityManager->persist($pass);
            // var_export($pass);
             $entityManager->flush();
-            return $this->redirect('/passwordedit/'.$pass->getId());
+            return $this->redirect('/passwordedit/'.$pass->getId().'?success=true');
 
         }
         return $this->render('password/passwordedit.html.twig', [
             'form' => $form->createView(),
-            'id' => $pass->getId()
+            'id' => $pass->getId(),
+            'success'=>$success
         ]);
         ;
         //return $this->redirectToRoute('moncompte');
@@ -239,7 +252,9 @@ class PasswordController extends Controller
         $form = $this->createFormBuilder($pass)
             ->setAction('/passwordedit')
             ->add('label', TextType::class)
+            ->add('login', TextType::class)
             ->add('password', TextType::class)
+            ->add('url', UrlType::class)
             ->add('description', TextareaType::class)
             ->add('date_insert', DateType::class, [
                 'widget' => 'single_text',

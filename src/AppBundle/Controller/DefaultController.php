@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Password;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -21,12 +22,19 @@ class DefaultController extends Controller
         // replace this example code with whatever you need
 
        // var_export($this->get("security.token_storage")->getToken());
-        //var_export($security->getUser());
+        $session    = $request->getSession();
+        $user       = $session->get('User');
+        $count = $this->getDoctrine()
+            ->getRepository(Password::class)
+            ->countAll($user->getId());
+
         return $this->render('default/index.html.twig', [
             'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
-        ]);
-        ;
-
+            'nb' => $count[0]['nb'],
+            'lastdate' => strftime('%d/%m/%Y %Hh%M',strtotime($count[0]['lastdate'])),
+               // 'test' => $count[1]['lastdate']
+        ]
+            );
     }
 
     /**

@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use AppBundle\Repository\MyPasswordRepository;
+use Symfony\Component\Security\Core\Security;
 
 /**
  * Password
@@ -23,9 +24,23 @@ class Password
     /**
      * @var string
      *
-     * @ORM\Column(name="password", type="string", length=255, nullable=true)
+     * @ORM\Column(name="password", type="string", length=4098, nullable=true)
      */
     private $password;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="url", type="string", length=2000, nullable=true)
+     */
+    private $url;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="login", type="string", length=255, nullable=true)
+     */
+    private $login;
 
     /**
      * @var string
@@ -126,6 +141,58 @@ class Password
     public function getLabel()
     {
         return $this->label;
+    }
+
+
+    /**
+     * Get login
+     *
+     * @return string
+     */
+    public function getLogin()
+    {
+        return $this->login;
+    }
+
+
+    /**
+     * Set login
+     *
+     * @param string $login
+     *
+     * @return Password
+     */
+    public function setLogin($login)
+    {
+        $this->login = $login;
+
+        return $this;
+    }
+
+
+    /**
+     * Get url
+     *
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+
+    /**
+     * Set url
+     *
+     * @param string $url
+     *
+     * @return Password
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
+
+        return $this;
     }
 
     /**
