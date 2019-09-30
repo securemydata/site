@@ -1,7 +1,7 @@
 
 php bin/console doctrine:mapping:import --force AppBundle xml
 php bin/console doctrine:mapping:convert annotation ./src
-php bin/console doctrine:generate:entities AppBundle:User
+php bin/console doctrine:generate:entities --format=annotation AppBundle:User
 
 
  php bin/console doctrine:cache:clear-metadata
