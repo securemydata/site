@@ -17,7 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Security;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Password;
-//use AppBundle\Service\LogPassword;
+use AppBundle\Service\LogPassword;
+use AppBundle\Entity\LogPasswordView;
 use AppBundle\Repository\PasswordRepository;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -32,8 +33,8 @@ class PasswordController extends Controller
 {
 
     /**
-     * @Route("/passwordslist", name="passwordslist")
-     */
+ * @Route("/passwordslist", name="passwordslist")
+ */
     public function Passwordslist(Request $request, Security $security)
     {
         $q      = $request->query->get('q');
@@ -51,6 +52,73 @@ class PasswordController extends Controller
             ['q' => $q]
         );
 
+        //return $this->redirectToRoute('moncompte');
+
+    }
+
+
+    /**
+     * @Route("/history", name="history")
+     */
+    public function historyPassView(Request $request, Security $security)
+    {
+        $q      = $request->query->get('q');
+        $session    = $request->getSession();
+        $user       = $session->get('User');
+
+
+        $history = $this->getDoctrine()
+            ->getRepository(LogPasswordView::class)
+            -> findBy(array('idUser'=>$user->getId()));
+        //var_export($pass);
+
+        return $this->render('password/logpasswordlist.html.twig',
+            ['q' => $q]
+        );
+
+        //return $this->redirectToRoute('moncompte');
+
+    }
+
+
+    /**
+     * @Route("/histodata", name="histodata")
+     */
+    public function histoData(Request $request, Security $security)
+    {
+
+        $session    = $request->getSession();
+        $user       = $session->get('User');
+
+
+        $content = $request->query->all();
+        if(!empty($content)) {
+            $draw = $content['draw'];
+            $orderColumn = $content['order'][0]['column'];
+            $orderDir = $content['order'][0]['dir'];
+            $start = $content['start'];
+            $length = $content['length'];
+            $search = $content['search']['value'];
+        }else{
+            $draw=1;
+            $orderColumn=$orderDir=$start=$length=$search='';
+        }
+
+        $history = $this->getDoctrine()
+            ->getRepository(LogPasswordView::class)
+            ->loadDatatableHistory($user->getId(),$orderColumn,$orderDir,$start,$length,$search);
+        //var_export($history);
+        $data   = array();
+        foreach($history as $h){
+            $data[] = ['label' => $h['label'],'ip' => $h['ip'],'DateInsert'=>date_format($h['dateInsert'],'d/m/Y H:i')];
+
+        }
+        $ar =   [  "draw"=> $draw, "recordsTotal"=> count($history), "recordsFiltered"=> count($history),
+            "data"=>$data
+        ];
+
+
+        return $this->json($ar);
         //return $this->redirectToRoute('moncompte');
 
     }

@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\LogPasswordView;
 use AppBundle\Entity\Password;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -24,15 +25,49 @@ class DefaultController extends Controller
        // var_export($this->get("security.token_storage")->getToken());
         $session    = $request->getSession();
         $user       = $session->get('User');
+
+        $nb = $nbview   = 0;
+        $lastdate = $lastdateview   = '';
+
         $count = $this->getDoctrine()
             ->getRepository(Password::class)
             ->countAll($user->getId());
+        $logs   = $this->getDoctrine()
+            ->getRepository(LogPasswordView::class)
+            ->countAll($user->getId());
 
+        if(is_array($count)){
+            if(!empty($count[0]['lastdate']))
+                $lastdate   = $count[0]['lastdate'];
+            if(!empty($count[0]['nb']))
+                $nb         = $count[0]['nb'];
+        }
+
+        if(is_array($logs)){
+            if(!empty($logs[0]['lastdate']))
+                $lastdateview   = $logs[0]['lastdate'];
+            if(!empty($logs[0]['nb']))
+                $nbview         = $logs[0]['nb'];
+        }
+
+        $graph   = $this->getDoctrine()
+            ->getRepository(LogPasswordView::class)
+            ->getLastmonths($user->getId());
+
+        $graphglob   = $this->getDoctrine()
+            ->getRepository(LogPasswordView::class)
+            ->getLastmonths();
+        //var_export($graph);
         return $this->render('default/index.html.twig', [
             'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
-            'nb' => $count[0]['nb'],
-            'lastdate' => strftime('%d/%m/%Y %Hh%M',strtotime($count[0]['lastdate'])),
-               // 'test' => $count[1]['lastdate']
+            'nb' => $nb,
+            'lastdate' => strftime('%d/%m/%Y %Hh%M',strtotime($lastdate)),
+            'nbview' => $nbview,
+            'lastdateview' => strftime('%d/%m/%Y %Hh%M',strtotime($lastdateview)),
+            'graphx'=>json_encode($graph[0]),
+            'graphy'=>json_encode($graph[1]),
+            'graphgx'=>json_encode($graphglob[0]),
+            'graphgy'=>json_encode($graphglob[1]),
         ]
             );
     }

@@ -21,8 +21,8 @@ services:
         # redundant thanks to _defaults, but value is overridable on each service
         class: AppBundle\Service\LogPassword
         public: true
-        arguments:
-                $em : '@doctrine.orm.entity_manager'
+        arguments: ['@doctrine.orm.entity_manager']
+
 
 
     AppBundle\:
